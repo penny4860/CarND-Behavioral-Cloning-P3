@@ -16,7 +16,7 @@ def augment_data(images, measurements):
 def get_samples_in_line(line, images, measurements):
     
     def _get_image(path):
-        filename = path.split('/')[-1]
+        filename = source_path.split('/')[-1]
         current_path = "dataset/1/IMG/" + filename
         image = cv2.imread(current_path)
         return image
@@ -39,8 +39,6 @@ def get_samples_in_line(line, images, measurements):
     right_meas = float(line[5])
     images.append(_get_image(right_img_path))
     measurements.append(_get_measurement(right_meas, -0.2))
-
-    return images, measurements
     
 
 lines = []
@@ -52,12 +50,52 @@ with open("dataset/1/driving_log.csv") as csvfile:
 images = []
 measurements = []
 for line in lines:
-    images, measurements = get_samples_in_line(line, images, measurements)
-    break
+    images, measurements = get_samples_in_line(line, images, measurements)    
 
-for img, meas in zip(images, measurements):
-    cv2.imshow("{}".format(meas), img)
-    cv2.waitKey(0)
-
-
+print(len(images))
+images, measurements = augment_data(images, measurements)
+print(len(images))
+    
+X_train = np.array(images)
+y_train = np.array(measurements)
  
+from keras.models import Sequential
+from keras.layers.convolutional import Convolution2D
+from keras.layers import Flatten, Dense, Lambda
+from keras.layers import MaxPooling2D, Activation
+ 
+ 
+  
+model = Sequential()
+model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160, 320, 3)))
+ 
+model.add(Convolution2D(8, 5, 5,
+                        border_mode='same'))
+# model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+ 
+model.add(Convolution2D(8, 5, 5,
+                        border_mode='same'))
+ 
+# model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+ 
+model.add(Flatten())
+model.add(Dense(1024))
+model.add(Activation('relu'))
+model.add(Dense(128))
+model.add(Activation('relu'))
+model.add(Dense(1))
+model.summary()
+ 
+ 
+model.compile(loss='mse', optimizer='adam')
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
+   
+model.save('model.h5')
+
+
+
+
