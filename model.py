@@ -64,13 +64,14 @@ y_train = np.array(measurements)
 from keras.models import Sequential
 from keras.layers.convolutional import Convolution2D
 from keras.layers import Flatten, Dense, Lambda
-from keras.layers import MaxPooling2D, Activation
+from keras.layers import MaxPooling2D, Activation, Cropping2D
  
  
   
 model = Sequential()
 model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160, 320, 3)))
- 
+# (top_crop, bottom crop), (left, right)
+model.add(Cropping2D(cropping=((50,20), (0,0))))
 model.add(Convolution2D(8, 5, 5,
                         border_mode='same'))
 # model.add(BatchNormalization())
