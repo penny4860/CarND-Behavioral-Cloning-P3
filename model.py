@@ -95,7 +95,7 @@ model.summary()
  
  
 model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=2)
    
 model.save('model.h5')
 
