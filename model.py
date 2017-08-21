@@ -71,23 +71,32 @@ from keras.layers import MaxPooling2D, Activation, Cropping2D
 model = Sequential()
 model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160, 320, 3)))
 # (top_crop, bottom crop), (left, right)
-model.add(Cropping2D(cropping=((70,25), (0,0))))
-model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu', border_mode='same'))
-model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu', border_mode='same'))
-model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu', border_mode='same'))
-model.add(Convolution2D(64, 3, 3, activation='relu', border_mode='same'))
-model.add(Convolution2D(64, 3, 3, activation='relu', border_mode='same'))
+model.add(Cropping2D(cropping=((50,20), (0,0))))
+model.add(Convolution2D(8, 5, 5,
+                        border_mode='same'))
+# model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+ 
+model.add(Convolution2D(8, 5, 5,
+                        border_mode='same'))
+ 
+# model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+ 
 model.add(Flatten())
-model.add(Dense(100))
-model.add(Dense(50))
-model.add(Dense(10))
+model.add(Dense(1024))
+model.add(Activation('relu'))
+model.add(Dense(128))
+model.add(Activation('relu'))
 model.add(Dense(1))
 model.summary()
  
  
 model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=5, verbose=1)
-    
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=2)
+   
 model.save('model.h5')
 
 
