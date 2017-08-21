@@ -16,7 +16,7 @@ def augment_data(images, measurements):
 def get_samples_in_line(line, images, measurements):
     
     def _get_image(path):
-        filename = source_path.split('/')[-1]
+        filename = path.split('/')[-1]
         current_path = "dataset/1/IMG/" + filename
         image = cv2.imread(current_path)
         return image
@@ -39,6 +39,8 @@ def get_samples_in_line(line, images, measurements):
     right_meas = float(line[5])
     images.append(_get_image(right_img_path))
     measurements.append(_get_measurement(right_meas, -0.2))
+    
+    return images, measurements
     
 
 lines = []
