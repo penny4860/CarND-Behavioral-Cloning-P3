@@ -67,7 +67,7 @@ def plot_history(history_object):
     plt.show()
     
 
-def generator(samples, batch_size=32, do_augment=True, use_side_data=True):
+def generator(samples, batch_size=32, do_augment=True, use_side_data=True, image_directory="dataset/images"):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         shuffle(samples)
@@ -77,7 +77,7 @@ def generator(samples, batch_size=32, do_augment=True, use_side_data=True):
             images = []
             angles = []
             for batch_sample in batch_samples:
-                images, angles = get_samples_in_line(batch_sample, images, angles)  # (x3)
+                images, angles = get_samples_in_line(batch_sample, images, angles, image_directory)  # (x3)
                 
             images, angles = augment_data(images, angles)                           # (x2)
 
@@ -86,8 +86,9 @@ def generator(samples, batch_size=32, do_augment=True, use_side_data=True):
             y_train = np.array(angles)
             yield sklearn.utils.shuffle(X_train, y_train)
 
+
 lines = []
-with open("dataset/1/driving_log.csv") as csvfile:
+with open("dataset/logs/1.csv") as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
         lines.append(line)
