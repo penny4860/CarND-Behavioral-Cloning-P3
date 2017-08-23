@@ -4,7 +4,7 @@ import csv
 from sklearn.model_selection import train_test_split
 import sklearn
 from random import shuffle
-
+import os
 
 def augment_data(images, measurements):
     augment_images = []
@@ -17,11 +17,11 @@ def augment_data(images, measurements):
         augment_measurements.append(-1.0*meas)
     return augment_images, augment_measurements
 
-def get_samples_in_line(line, images, measurements):
+def get_samples_in_line(line, images, measurements, image_directory):
     
     def _get_image(path):
-        filename = path.split('/')[-1]
-        current_path = "dataset/1/IMG/" + filename
+        filename = os.path.basename(path)
+        current_path = os.path.join(image_directory, filename)
         image = cv2.imread(current_path)
         return image
     
