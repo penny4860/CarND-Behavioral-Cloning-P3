@@ -115,7 +115,7 @@ model.summary()
  
  
 model.compile(loss='mse', optimizer='adam')
-history_object = model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=2)
+history_object = model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=2, verbose=2)
 plot_history(history_object)
    
 model.save('model.h5')
