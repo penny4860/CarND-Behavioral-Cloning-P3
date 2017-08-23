@@ -107,7 +107,7 @@ from keras.layers import MaxPooling2D, Activation, Cropping2D
    
     
 model = Sequential()
-model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160, 320, 3)))
+model.add(Lambda(lambda x: (x - 128.0)/ 128.0, input_shape=(160, 320, 3)))
 # (top_crop, bottom crop), (left, right)
 model.add(Cropping2D(cropping=((50,20), (0,0))))
 model.add(Convolution2D(8, 5, 5,
@@ -139,7 +139,7 @@ history_object = model.fit_generator(train_generator,
                                      samples_per_epoch=len(train_lines)*6,
                                      validation_data=validation_generator,
                                      nb_val_samples=len(validation_lines),
-                                     nb_epoch=5,
+                                     nb_epoch=3,
                                      verbose=2)
  
 plot_history(history_object)
