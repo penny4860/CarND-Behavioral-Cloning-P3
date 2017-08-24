@@ -116,16 +116,22 @@ model = Sequential()
 model.add(Lambda(lambda x: (x - 128.0)/ 128.0, input_shape=(160, 320, 3)))
 # (top_crop, bottom crop), (left, right)
 model.add(Cropping2D(cropping=((50,20), (0,0))))
-model.add(Convolution2D(8, 5, 5,
-                        border_mode='same'))
-# model.add(BatchNormalization())
+model.add(Convolution2D(8, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(Convolution2D(8, 3, 3, border_mode='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-   
-model.add(Convolution2D(8, 5, 5,
-                        border_mode='same'))
-   
+
 # model.add(BatchNormalization())
+model.add(Convolution2D(16, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(Convolution2D(16, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Convolution2D(32, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(Convolution2D(32, 3, 3, border_mode='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
    
