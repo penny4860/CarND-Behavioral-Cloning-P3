@@ -104,10 +104,9 @@ train_lines, validation_lines = train_test_split(lines, test_size=0.2)
 train_generator = generator(train_lines, batch_size=20)
 validation_generator = generator(validation_lines, batch_size=120, do_augment=False, use_side_data=False)
 
-
 from keras.models import Sequential
 from keras.layers.convolutional import Convolution2D
-from keras.layers import Flatten, Dense, Lambda
+from keras.layers import Flatten, Dense, Lambda, Dropout
 from keras.layers import MaxPooling2D, Activation, Cropping2D
    
    
@@ -134,11 +133,19 @@ model.add(Activation('relu'))
 model.add(Convolution2D(32, 3, 3, border_mode='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Convolution2D(64, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(Convolution2D(64, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
    
 model.add(Flatten())
+model.add(Dropout(0.5))
 model.add(Dense(1024))
 model.add(Activation('relu'))
-model.add(Dense(128))
+model.add(Dropout(0.5))
+model.add(Dense(512))
 model.add(Activation('relu'))
 model.add(Dense(1))
 model.summary()
@@ -151,7 +158,7 @@ history_object = model.fit_generator(train_generator,
                                      samples_per_epoch=len(train_lines)*6,
                                      validation_data=validation_generator,
                                      nb_val_samples=len(validation_lines),
-                                     nb_epoch=10,
+                                     nb_epoch=20,
                                      verbose=2)
  
 plot_history(history_object)
