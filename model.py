@@ -145,7 +145,7 @@ history_object = model.fit_generator(train_generator,
                                      samples_per_epoch=len(train_lines)*6,
                                      validation_data=validation_generator,
                                      nb_val_samples=len(validation_lines),
-                                     nb_epoch=3,
+                                     nb_epoch=10,
                                      verbose=2)
  
 plot_history(history_object)
