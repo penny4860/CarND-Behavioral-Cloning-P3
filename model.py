@@ -65,18 +65,7 @@ def plot_history(history_object):
     plt.xlabel('epoch')
     plt.legend(['training set', 'validation set'], loc='upper right')
     plt.show()
-
-
-def resize_images(images):
-    resized_imgs = []
     
-    for img in images:
-        w = int(img.shape[1]/2)
-        h = int(img.shape[0]/2)
-        resized = cv2.resize(img, (w, h))
-        resized_imgs.append(resized)
-    return resized_imgs
-
 
 def generator(samples, batch_size=32, do_augment=True, use_side_data=True, image_directory="dataset/images"):
     num_samples = len(samples)
@@ -89,14 +78,12 @@ def generator(samples, batch_size=32, do_augment=True, use_side_data=True, image
             angles = []
             for batch_sample in batch_samples:
                 images, angles = get_samples_in_line(batch_sample, images, angles, image_directory)  # (x3)
-
-            images = resize_images(images)
+                
             images, angles = augment_data(images, angles)                           # (x2)
 
             # trim image to only see section with road
             X_train = np.array(images)
             y_train = np.array(angles)
-            
             yield sklearn.utils.shuffle(X_train, y_train)
 
 # 1. Get line text from log files
@@ -125,9 +112,9 @@ from keras.layers import MaxPooling2D, Activation, Cropping2D
    
     
 model = Sequential()
-model.add(Lambda(lambda x: (x - 128.0)/ 128.0, input_shape=(80, 160, 3)))
+model.add(Lambda(lambda x: (x - 128.0)/ 128.0, input_shape=(160, 320, 3)))
 # (top_crop, bottom crop), (left, right)
-model.add(Cropping2D(cropping=((25,10), (0,0))))
+model.add(Cropping2D(cropping=((50,20), (0,0))))
 model.add(Convolution2D(8, 3, 3, border_mode='same'))
 model.add(Activation('relu'))
 model.add(Convolution2D(8, 3, 3, border_mode='same'))
