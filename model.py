@@ -86,16 +86,21 @@ def generator(samples, batch_size=32, do_augment=True, use_side_data=True, image
             y_train = np.array(angles)
             yield sklearn.utils.shuffle(X_train, y_train)
 
+# 1. Get line text from log files
+log_directory = "dataset/logs"
+log_files = os.listdir(log_directory)
 
 lines = []
-with open("dataset/logs/1.csv") as csvfile:
-    reader = csv.reader(csvfile)
-    for line in reader:
-        lines.append(line)
+for log_file in log_files:
+    with open(os.path.join(log_directory, log_file)) as csvfile:
+        reader = csv.reader(csvfile)
+        for line in reader:
+            lines.append(line)
 
+# 2. Split train/validation
 train_lines, validation_lines = train_test_split(lines, test_size=0.2)
 
-# compile and train the model using the generator function
+# 3. Build Generator
 train_generator = generator(train_lines, batch_size=20)
 validation_generator = generator(validation_lines, batch_size=120, do_augment=False, use_side_data=False)
 
