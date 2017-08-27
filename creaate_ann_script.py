@@ -5,7 +5,12 @@ import numpy as np
 import json
 import os
 
-LOG_FILE = './data/driving_log.csv'
+
+LOG_FILES = ['C://Users//joonsup//git//dataset//logs//1.csv',
+            'C://Users//joonsup//git//dataset//logs//2.csv',
+            'C://Users//joonsup//git//dataset//logs//3.csv',
+            'C://Users//joonsup//git//dataset//logs//4.csv',
+            'C://Users//joonsup//git//dataset//logs//5.csv']
 ANNOTATION_FILE = 'annotation.json'
 STEERING_COEFFICIENT = 0.229
 
