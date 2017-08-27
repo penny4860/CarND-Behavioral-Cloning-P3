@@ -76,8 +76,8 @@ from keras.layers import Flatten, Dense, Lambda, Dropout
 from keras.layers import MaxPooling2D, Activation, Cropping2D
 
 number_of_epochs = 8
-number_of_samples_per_epoch = 20032
-number_of_validation_samples = 6400
+number_of_samples_per_epoch = 30000
+number_of_validation_samples = 6723
 if __name__ == "__main__":
 
     import json
