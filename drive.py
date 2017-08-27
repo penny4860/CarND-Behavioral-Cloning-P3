@@ -48,6 +48,19 @@ set_speed = 9
 controller.set_desired(set_speed)
 
 
+import scipy.misc
+def _crop(image, top_percent, bottom_percent):
+    assert 0 <= top_percent < 0.5, 'top_percent should be between 0.0 and 0.5'
+    assert 0 <= bottom_percent < 0.5, 'top_percent should be between 0.0 and 0.5'
+
+    top = int(np.ceil(image.shape[0] * top_percent))
+    bottom = image.shape[0] - int(np.ceil(image.shape[0] * bottom_percent))
+    return image[top:bottom, :]
+
+def _resize(image, new_dim):
+    return scipy.misc.imresize(image, new_dim)
+
+
 @sio.on('telemetry')
 def telemetry(sid, data):
     if data:
@@ -61,6 +74,10 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        
+        image_array = _crop(image_array, 0.35, 0.1)
+        image_array = _resize(image_array, new_dim=(64, 64))
+        
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
