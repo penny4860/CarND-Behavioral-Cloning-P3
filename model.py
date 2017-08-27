@@ -75,6 +75,8 @@ from keras.layers.convolutional import Convolution2D
 from keras.layers import Flatten, Dense, Lambda, Dropout
 from keras.layers import MaxPooling2D, Activation, Cropping2D
 
+# Todo: args
+image_path = "C://Users//joonsup//git//data//IMG"
 number_of_epochs = 8
 number_of_samples_per_epoch = 30000
 number_of_validation_samples = 6723
@@ -87,7 +89,7 @@ if __name__ == "__main__":
         anns = json.load(fp)
 
     # Todo : train / valid annotation file을 나누고, img_generator instance 를 2개 생성하자.
-    gen = ImgGenerator("C://Users//joonsup//git//data//IMG", anns, CarAugmentor())
+    gen = ImgGenerator(image_path, anns, CarAugmentor())
     train_gen = gen.next_batch()
     validation_gen = gen.next_batch()
     
@@ -100,7 +102,7 @@ if __name__ == "__main__":
                                          nb_val_samples=number_of_validation_samples,
                                          verbose=1)
 
-    plot_history(history_object)
+    # plot_history(history_object)
     model.save('model.h5')
 
 
