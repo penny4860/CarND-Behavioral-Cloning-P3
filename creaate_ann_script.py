@@ -30,8 +30,13 @@ def get_files(log_file):
 
 
 if __name__ == "__main__":
-    # 1. Get image files & target labels    
-    img_files, targets = get_files(LOG_FILE)
+    # 1. Get image files & target labels
+    acc_imgs = []
+    acc_targets = []
+    for log_file in LOG_FILES:
+        img_files, targets = get_files(log_file)
+        acc_imgs += img_files
+        acc_targets += targets
     
     # 2. Collect annotations
     annotations = []
