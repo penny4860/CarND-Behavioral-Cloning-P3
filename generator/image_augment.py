@@ -16,6 +16,10 @@ class _ImageAugmentor(object):
         return image, target
 
 
+class NothingAugmentor(_ImageAugmentor):
+    def augment(self, image, target):
+        return image, target
+
 class CarAugmentor(_ImageAugmentor):
     def augment(self,
                 image,
