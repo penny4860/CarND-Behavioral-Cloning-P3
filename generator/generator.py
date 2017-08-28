@@ -37,6 +37,7 @@ class ImgGenerator(object):
                 image = plt.imread(img_path)
 
                 image, target = self._augment(image, target)
+                image = self._preprocess(image)
                 X_batch.append(image)
                 y_batch.append(target)
      
