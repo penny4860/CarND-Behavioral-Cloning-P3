@@ -12,7 +12,7 @@ from keras.layers import MaxPooling2D, Activation
 
 from generator.image_augment import CarAugmentor, NothingAugmentor
 from generator.image_preprocess import Preprocessor
-from generator.generator import ImgGenerator
+from generator.generator import DataGenerator
 
 
 def build_model():
@@ -70,8 +70,8 @@ if __name__ == "__main__":
 
     # validation generator : augment (x)
     # https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
-    test_data_generator = ImgGenerator(image_path, valid_annotations, NothingAugmentor(), Preprocessor())
-    train_data_generator = ImgGenerator(image_path, train_annotations, CarAugmentor(), Preprocessor())
+    test_data_generator = DataGenerator(image_path, valid_annotations, NothingAugmentor(), Preprocessor())
+    train_data_generator = DataGenerator(image_path, train_annotations, CarAugmentor(), Preprocessor())
 
     train_gen = train_data_generator.next_batch()
     validation_gen = test_data_generator.next_batch()
