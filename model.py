@@ -83,13 +83,13 @@ number_of_validation_samples = 6723
 if __name__ == "__main__":
 
     import json
-    from generator.image_augment import CarAugmentor
+    from generator.image_augment import CarAugmentor, Preprocessor
     from generator.generator import ImgGenerator
     with open('annotation.json', 'r') as fp:
         anns = json.load(fp)
 
     # Todo : train / valid annotation file을 나누고, img_generator instance 를 2개 생성하자.
-    gen = ImgGenerator(image_path, anns, CarAugmentor())
+    gen = ImgGenerator(image_path, anns, CarAugmentor(), Preprocessor())
     train_gen = gen.next_batch()
     validation_gen = gen.next_batch()
     

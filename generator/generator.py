@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 class ImgGenerator(object):
     """generate batch images from image files"""
     
-    def __init__(self, image_directory, annotations, image_augmentor):
+    def __init__(self, image_directory, annotations, image_augmentor, preprocessor):
         """
         # Args
             image_directory : str
@@ -24,6 +24,7 @@ class ImgGenerator(object):
         self._image_dir = image_directory
         self._annotations = annotations
         self._augmentor = image_augmentor
+        self._preprocessor = preprocessor
     
     def next_batch(self, batch_size=32):
         while True:
@@ -59,6 +60,9 @@ class ImgGenerator(object):
     def _augment(self, image, target):
         image, target = self._augmentor.augment(image, target)
         return image, target
+    
+    def _preprocess(self, image):
+        return self._preprocessor.preprocess(image)
 
 
 if __name__ == "__main__":

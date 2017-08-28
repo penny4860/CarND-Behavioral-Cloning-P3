@@ -7,6 +7,28 @@ import scipy.misc
 from scipy.stats import bernoulli
 
 
+class Preprocessor(object):
+    
+    def __init__(self):
+        pass
+
+    def preprocess(self, image, top_crop_percent=0.35, bottom_crop_percent=0.1, resize_dim=(64, 64)):
+        image = self._crop(image, top_crop_percent, bottom_crop_percent)
+        image = self._resize(image, resize_dim)
+        return image
+
+    def _crop(self, image, top_percent, bottom_percent):
+        assert 0 <= top_percent < 0.5, 'top_percent should be between 0.0 and 0.5'
+        assert 0 <= bottom_percent < 0.5, 'top_percent should be between 0.0 and 0.5'
+    
+        top = int(np.ceil(image.shape[0] * top_percent))
+        bottom = image.shape[0] - int(np.ceil(image.shape[0] * bottom_percent))
+        return image[top:bottom, :]
+
+    def _resize(self, image, new_dim):
+        return scipy.misc.imresize(image, new_dim)
+
+
 class _ImageAugmentor(object):
     
     def __init__(self):
@@ -15,6 +37,7 @@ class _ImageAugmentor(object):
     @abstractmethod
     def augment(self, image, target):
         return image, target
+
 
 class CarAugmentor(_ImageAugmentor):
     def augment(self,
@@ -28,11 +51,9 @@ class CarAugmentor(_ImageAugmentor):
         head = bernoulli.rvs(do_shear_prob)
         if head == 1:
             image, target = self._random_shear(image, target)
-    
-        image = self._crop(image, top_crop_percent, bottom_crop_percent)
+
         image, target = self._random_flip(image, target)
         image = self._random_gamma(image)
-        image = self._resize(image, resize_dim)
         return image, target
 
     def _random_shear(self, image, steering_angle, shear_range=200):
@@ -46,15 +67,6 @@ class CarAugmentor(_ImageAugmentor):
         image = cv2.warpAffine(image, M, (cols, rows), borderMode=1)
         steering_angle += dsteering
         return image, steering_angle
-
-    def _crop(self, image, top_percent, bottom_percent):
-        assert 0 <= top_percent < 0.5, 'top_percent should be between 0.0 and 0.5'
-        assert 0 <= bottom_percent < 0.5, 'top_percent should be between 0.0 and 0.5'
-    
-        top = int(np.ceil(image.shape[0] * top_percent))
-        bottom = image.shape[0] - int(np.ceil(image.shape[0] * bottom_percent))
-    
-        return image[top:bottom, :]
 
     def _random_flip(self, image, steering_angle, flipping_prob=0.5):
         head = bernoulli.rvs(flipping_prob)
@@ -70,5 +82,3 @@ class CarAugmentor(_ImageAugmentor):
                           for i in np.arange(0, 256)]).astype("uint8")
         return cv2.LUT(image, table)
     
-    def _resize(self, image, new_dim):
-        return scipy.misc.imresize(image, new_dim)
