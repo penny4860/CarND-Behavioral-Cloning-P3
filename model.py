@@ -2,11 +2,16 @@
 
 import pickle
 import cv2
+import json
+
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers.convolutional import Convolution2D
 from keras.layers import Flatten, Dense, Lambda
 from keras.layers import MaxPooling2D, Activation
+from generator.image_augment import CarAugmentor
+from generator.image_preprocess import Preprocessor
+from generator.generator import ImgGenerator
 
 
 def build_model():
@@ -54,11 +59,6 @@ number_of_epochs = 3
 number_of_samples_per_epoch = 300
 number_of_validation_samples = 64
 if __name__ == "__main__":
-
-    import json
-    from generator.image_augment import CarAugmentor
-    from generator.image_preprocess import Preprocessor
-    from generator.generator import ImgGenerator
     with open('annotation.json', 'r') as fp:
         anns = json.load(fp)
 
