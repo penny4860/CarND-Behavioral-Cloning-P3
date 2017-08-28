@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 import numpy as np
 import matplotlib.pyplot as plt
-
+from .image_preprocess import Preprocessor
 
 class ImgGenerator(object):
     """generate batch images from image files"""
     
-    def __init__(self, image_directory, annotations, image_augmentor, preprocessor):
+    def __init__(self, image_directory, annotations, image_augmentor, preprocessor=Preprocessor()):
         """
         # Args
             image_directory : str
