@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 import numpy as np
 import matplotlib.pyplot as plt
-
+from .image_preprocess import Preprocessor
 
 class ImgGenerator(object):
     """generate batch images from image files"""
     
-    def __init__(self, image_directory, annotations, image_augmentor):
+    def __init__(self, image_directory, annotations, image_augmentor, preprocessor=Preprocessor()):
         """
         # Args
             image_directory : str
@@ -24,6 +23,7 @@ class ImgGenerator(object):
         self._image_dir = image_directory
         self._annotations = annotations
         self._augmentor = image_augmentor
+        self._preprocessor = preprocessor
     
     def next_batch(self, batch_size=32):
         while True:
@@ -36,6 +36,7 @@ class ImgGenerator(object):
                 image = plt.imread(img_path)
 
                 image, target = self._augment(image, target)
+                image = self._preprocess(image)
                 X_batch.append(image)
                 y_batch.append(target)
      
@@ -59,44 +60,7 @@ class ImgGenerator(object):
     def _augment(self, image, target):
         image, target = self._augmentor.augment(image, target)
         return image, target
-
-
-if __name__ == "__main__":
-    """Use Case
-    import json
-    from src.generator.image_augment import CarAugmentor
-    from src.generator.generator import ImgGenerator
-    with open('annotation.json', 'r') as fp:
-        anns = json.load(fp)
     
-    augmentor = CarAugmentor()
-    gen = ImgGenerator("C://Users//joonsup//git//data//IMG", anns, augmentor)
-    train_gen = gen.next_batch()
-    validation_gen = gen.next_batch()
-    
-    
-    history = model.fit_generator(train_gen,
-                                  samples_per_epoch=number_of_samples_per_epoch,
-                                  nb_epoch=number_of_epochs,
-                                  validation_data=validation_gen,
-                                  nb_val_samples=number_of_validation_samples,
-                                  verbose=1)
-    """
-    
-    from src.generator.image_augment import CarAugmentor
-    
-    # original client code
-    with open('..//..//annotation.json', 'r') as fp:
-        anns = json.load(fp)
-
-    augmentor = CarAugmentor()
-    gen = ImgGenerator("C://Users//joonsup//git//data//IMG", anns, augmentor)
-    g = gen.next_batch()
-
-    xs, ys = next(g)
-    print(xs.shape)
-
-    xs, ys = next(g)
-    print(xs.shape)
-
+    def _preprocess(self, image):
+        return self._preprocessor.preprocess(image)
 
