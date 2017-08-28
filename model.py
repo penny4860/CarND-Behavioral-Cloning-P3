@@ -4,12 +4,11 @@ import pickle
 import cv2
 import json
 
-from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers.convolutional import Convolution2D
 from keras.layers import Flatten, Dense, Lambda
 from keras.layers import MaxPooling2D, Activation
-from generator.image_augment import CarAugmentor
+from generator.image_augment import CarAugmentor, NothingAugmentor
 from generator.image_preprocess import Preprocessor
 from generator.generator import ImgGenerator
 
@@ -62,21 +61,33 @@ if __name__ == "__main__":
     with open('annotation.json', 'r') as fp:
         anns = json.load(fp)
 
+    from random import shuffle
+    shuffle(anns)
+    
+    n_train_samples = int(len(anns)*0.8)
+    print(n_train_samples)
+    train_annotations = anns[:n_train_samples]
+    valid_annotations = anns[n_train_samples:]
+
     # Todo : train / valid annotation file을 나누고, img_generator instance 를 2개 생성하자.
-    gen = ImgGenerator(image_path, anns, CarAugmentor(), Preprocessor())
-    train_gen = gen.next_batch()
-    validation_gen = gen.next_batch()
-    
+    # validation generator : augment (x)
+    # https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+    test_data_generator = ImgGenerator(image_path, valid_annotations, NothingAugmentor(), Preprocessor())
+    train_data_generator = ImgGenerator(image_path, train_annotations, CarAugmentor(), Preprocessor())
+
+    train_gen = train_data_generator.next_batch()
+    validation_gen = test_data_generator.next_batch()
+     
     model = build_model()
-    
+     
     history_object = model.fit_generator(train_gen,
                                          samples_per_epoch=number_of_samples_per_epoch,
                                          nb_epoch=number_of_epochs,
                                          validation_data=validation_gen,
                                          nb_val_samples=number_of_validation_samples,
                                          verbose=1)
-
-    pickle.dump(history_object.history, open('training_history.pkl', 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
-    model.save('model.h5')
+# 
+#     pickle.dump(history_object.history, open('training_history.pkl', 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+#     model.save('model.h5')
 
 
