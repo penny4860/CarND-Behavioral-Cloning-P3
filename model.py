@@ -1,33 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import pickle
 import cv2
-import numpy as np
-import csv
 from sklearn.model_selection import train_test_split
-import sklearn
-from random import shuffle
-import os
-
-
-def plot_history(history_object):
-    import matplotlib.pyplot as plt
-    # history_object = model.fit_generator(train_generator, samples_per_epoch =
-    #     len(train_samples), validation_data = 
-    #     validation_generator,
-    #     nb_val_samples = len(validation_samples), 
-    #     nb_epoch=5, verbose=1)
-    
-    ### print the keys contained in the history object
-    print(history_object.history.keys())
-    
-    ### plot the training and validation loss for each epoch
-    plt.plot(history_object.history['loss'])
-    plt.plot(history_object.history['val_loss'])
-    plt.title('model mean squared error loss')
-    plt.ylabel('mean squared error loss')
-    plt.xlabel('epoch')
-    plt.legend(['training set', 'validation set'], loc='upper right')
-    plt.show()
+from keras.models import Sequential
+from keras.layers.convolutional import Convolution2D
+from keras.layers import Flatten, Dense, Lambda
+from keras.layers import MaxPooling2D, Activation
 
 
 def build_model():
@@ -69,17 +48,11 @@ def build_model():
     model.compile(loss='mse', optimizer='adam')
     return model
 
-    
-from keras.models import Sequential
-from keras.layers.convolutional import Convolution2D
-from keras.layers import Flatten, Dense, Lambda, Dropout
-from keras.layers import MaxPooling2D, Activation, Cropping2D
-
 # Todo: args
 image_path = "C://Users//joonsup//git//dataset//images"
-number_of_epochs = 8
-number_of_samples_per_epoch = 30000
-number_of_validation_samples = 6723
+number_of_epochs = 3
+number_of_samples_per_epoch = 300
+number_of_validation_samples = 64
 if __name__ == "__main__":
 
     import json
@@ -103,7 +76,7 @@ if __name__ == "__main__":
                                          nb_val_samples=number_of_validation_samples,
                                          verbose=1)
 
-    # plot_history(history_object)
+    pickle.dump(history_object.history, open('training_history.pkl', 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
     model.save('model.h5')
 
 
