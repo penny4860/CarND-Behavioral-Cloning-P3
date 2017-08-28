@@ -15,6 +15,10 @@ from generator.image_augment import CarAugmentor, NothingAugmentor
 from generator.image_preprocess import Preprocessor
 from generator.generator import DataGenerator
 
+"""Usage
+> python model.py --image_path dataset//images --n_epochs 2 --training_ratio 0.8
+"""
+
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
@@ -63,7 +67,8 @@ def build_model():
     model.compile(loss='mse', optimizer='adam')
     return model
 
-if __name__ == "__main__":
+
+def main(_):
     with open('annotation.json', 'r') as fp:
         anns = json.load(fp)
     shuffle(anns)
@@ -93,3 +98,5 @@ if __name__ == "__main__":
     model.save('model.h5')
 
 
+if __name__ == '__main__':
+    tf.app.run()
