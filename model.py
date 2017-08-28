@@ -55,9 +55,9 @@ def build_model():
 
 # Todo: args
 image_path = "C://Users//joonsup//git//dataset//images"
-number_of_epochs = 3
-number_of_samples_per_epoch = 300
-number_of_validation_samples = 64
+number_of_epochs = 8
+number_of_samples_per_epoch = 30000
+number_of_validation_samples = 6723
 if __name__ == "__main__":
     with open('annotation.json', 'r') as fp:
         anns = json.load(fp)
