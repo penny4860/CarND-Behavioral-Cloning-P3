@@ -40,11 +40,11 @@ if __name__ == "__main__":
     
     # 2. Collect annotations
     annotations = []
-    for filename, target in zip(img_files, targets):
+    for filename, target in zip(acc_imgs, acc_targets):
         annotations.append({"filename": filename, "target": target})
     
     # 3. Write to annotation files
     with open('annotation.json', 'w') as fp:
         json.dump(annotations, fp, indent=4)
 
-
+    print(len(annotations))
