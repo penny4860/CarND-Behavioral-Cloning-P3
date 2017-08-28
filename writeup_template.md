@@ -36,9 +36,10 @@ The goals / steps of this project are the following:
 
 My project includes the following files:
 * model.py containing the script to create and train the model
+* generator package containing data augmentation and data generating code
 * drive.py for driving the car in autonomous mode
-* model.h5 containing a trained convolution neural network 
-* writeup_report.md or writeup_report.pdf summarizing the results
+* model.h5 containing a trained parameters 
+* writeup_report.md summarizing the results
 
 ####2. Submission includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
@@ -54,51 +55,104 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
+나는 VGG network에 영감을 받아 small size의 convolution layer와 relu, pooling이 반복되는 구조의 architecture를 설계하였다. 
 
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
 
 ####2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
+Deep neural network의 경우 overfitting을 줄이기 위해 Dropout, Batchnorm등을 사용하는 것이 일반적이다.
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+그러나, 나는 이러한 방식을 사용하지 않았다. 
+
+Network architecture를 설계하는 단계에서 overfitting을 줄이기 위해 다음과 같은 내용은 반영하였다. 
+
+* small filter와 activation layer를 반복하는 방식은 model의 complexity를 높게하면서도 parameter숫자를 줄여서 overfitting의 위험성을 줄인다.
+* convolution layer의 channel 숫자를 가급적 작게 설정하였다. 
 
 ####3. Model parameter tuning
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
+The model used an adam optimizer, so the learning rate was not tuned manually.
 
 ####4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
-
-For details about how I created the training data, see the next section. 
+첫 번째 track에서 dataset을 수집하였다. 최대한 자동차가 길의 가운데 위치할 수 있도록 노력하면서 5번 수집하였다.
 
 ###Model Architecture and Training Strategy
 
 ####1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+나는 먼저 Training data가 학습될 수 있을 정도로 complexity가 높은 구조를 설계하였다. 나는 VGGnet 에 영감을 받아 비슷한 구조의 network를 설계하였다.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+이 단계에서는 validation dataset은 사용하지 않고 training dataset이 충분히 학습되는 (training error가 0.005미만) 구조를 찾았다.
 
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
+나는 그 다음단계에서 validation dataset을 사용해서 overfitting 정도를 관찰하였다. 처음 디자인한 구조에서 overfitting을 줄이기 위해 parameter를 줄이는 방향으로 network 구조를 수정하였다.
 
-To combat the overfitting, I modified the model so that ...
-
-Then I ... 
-
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
-
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
 ####2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+The final model architecture (model.py lines 34-70)는 vggnet 과 비슷하지만 convolution layer의 filter 숫자가 훨씬 작은 구조이다.
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
+처음에는 First Layer의 숫자를 32로 크게 잡았으나, Training 속도를 빠르게 하고, overfitting의 위험성을 줄이기 위해 First Layer의 filter 숫자를 8로 줄였다.
 
-![alt text][image1]
+다음은 전체적인 architecture 이다.
+```
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+lambda_1 (Lambda)                (None, 64, 64, 3)     0           lambda_input_1[0][0]             
+____________________________________________________________________________________________________
+convolution2d_1 (Convolution2D)  (None, 64, 64, 8)     224         lambda_1[0][0]                   
+____________________________________________________________________________________________________
+activation_1 (Activation)        (None, 64, 64, 8)     0           convolution2d_1[0][0]            
+____________________________________________________________________________________________________
+convolution2d_2 (Convolution2D)  (None, 64, 64, 8)     584         activation_1[0][0]               
+____________________________________________________________________________________________________
+activation_2 (Activation)        (None, 64, 64, 8)     0           convolution2d_2[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_1 (MaxPooling2D)    (None, 32, 32, 8)     0           activation_2[0][0]               
+____________________________________________________________________________________________________
+convolution2d_3 (Convolution2D)  (None, 32, 32, 16)    1168        maxpooling2d_1[0][0]             
+____________________________________________________________________________________________________
+activation_3 (Activation)        (None, 32, 32, 16)    0           convolution2d_3[0][0]            
+____________________________________________________________________________________________________
+convolution2d_4 (Convolution2D)  (None, 32, 32, 16)    2320        activation_3[0][0]               
+____________________________________________________________________________________________________
+activation_4 (Activation)        (None, 32, 32, 16)    0           convolution2d_4[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_2 (MaxPooling2D)    (None, 16, 16, 16)    0           activation_4[0][0]               
+____________________________________________________________________________________________________
+convolution2d_5 (Convolution2D)  (None, 16, 16, 32)    4640        maxpooling2d_2[0][0]             
+____________________________________________________________________________________________________
+activation_5 (Activation)        (None, 16, 16, 32)    0           convolution2d_5[0][0]            
+____________________________________________________________________________________________________
+convolution2d_6 (Convolution2D)  (None, 16, 16, 32)    9248        activation_5[0][0]               
+____________________________________________________________________________________________________
+activation_6 (Activation)        (None, 16, 16, 32)    0           convolution2d_6[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_3 (MaxPooling2D)    (None, 8, 8, 32)      0           activation_6[0][0]               
+____________________________________________________________________________________________________
+convolution2d_7 (Convolution2D)  (None, 8, 8, 64)      18496       maxpooling2d_3[0][0]             
+____________________________________________________________________________________________________
+activation_7 (Activation)        (None, 8, 8, 64)      0           convolution2d_7[0][0]            
+____________________________________________________________________________________________________
+convolution2d_8 (Convolution2D)  (None, 8, 8, 64)      36928       activation_7[0][0]               
+____________________________________________________________________________________________________
+activation_8 (Activation)        (None, 8, 8, 64)      0           convolution2d_8[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_4 (MaxPooling2D)    (None, 4, 4, 64)      0           activation_8[0][0]               
+____________________________________________________________________________________________________
+flatten_1 (Flatten)              (None, 1024)          0           maxpooling2d_4[0][0]             
+____________________________________________________________________________________________________
+dense_1 (Dense)                  (None, 512)           524800      flatten_1[0][0]                  
+____________________________________________________________________________________________________
+activation_9 (Activation)        (None, 512)           0           dense_1[0][0]                    
+____________________________________________________________________________________________________
+dense_2 (Dense)                  (None, 128)           65664       activation_9[0][0]               
+____________________________________________________________________________________________________
+activation_10 (Activation)       (None, 128)           0           dense_2[0][0]                    
+____________________________________________________________________________________________________
+dense_3 (Dense)                  (None, 1)             129         activation_10[0][0]              
+====================================================================================================
+```
 
 ####3. Creation of the Training Set & Training Process
 
