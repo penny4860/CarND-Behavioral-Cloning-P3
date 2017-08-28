@@ -21,7 +21,7 @@ app = Flask(__name__)
 model = None
 prev_image_array = None
 
-from generator.image_augment import Preprocessor
+from generator.image_preprocess import Preprocessor
 
 class SimplePIController:
     def __init__(self, Kp, Ki):
