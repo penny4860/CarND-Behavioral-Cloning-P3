@@ -153,7 +153,7 @@ dense_3 (Dense)                  (None, 1)             129         activation_10
 
 ##### 2) Create Annotation File
 
-* I created an annotation.json file by implementing `` `create_ann_script.py```.
+* I created an annotation.json file by implementing ```create_ann_script.py```.
 * The json format annotation file specifies the image filename and target angle.
 
 ```
@@ -180,12 +180,12 @@ I used the following augmentation technique.
 
 ![alt text][preprocess] 
 
-The whole process is implemented in the `` generator / image_augment.py`` CarAugmentor class.
+The whole process is implemented in the ```generator / image_augment.py``` CarAugmentor class. During training, the augmentation was not applied to the validation dataset. To efficiently implement client code using Augmentor class, NothingAumentor class was implemented and used in generator of validation dataset.
 
 
 ##### 4) Dataset Preprocessing
 
-I performed the following pretreatment procedure to increase the training speed and reduce the risk of overfitting.
+I performed the following procedure to increase the training speed and reduce the risk of overfitting.
 
 * crop
   	* I cut out the unnecessary parts from the image.
@@ -196,10 +196,12 @@ I performed the following pretreatment procedure to increase the training speed 
 
 I applied the preprocessing procedure to training set and validation set equally. Also, in order to apply the same inference process, it is implemented as a separate class from augmentation.
 
-I have implemented the whole process in `` `generator / image_process.py`` as a Preprocessor class.
+I have implemented the whole process in ```generator / image_process.py``` as a Preprocessor class.
 
 
+##### 5) Data Generator
 
+For the efficiency of memory usage during training, I implemented the DataGenerator class in ```generator / generator.py```.
 
 
 
