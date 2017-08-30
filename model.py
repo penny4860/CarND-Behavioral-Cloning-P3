@@ -23,7 +23,7 @@ from generator.generator import DataGenerator
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('image_path', "C://Users//joonsup//git//dataset//images", 'Directory containing images')
+flags.DEFINE_string('image_path', "..//dataset//images", 'Directory containing images')
 # flags.DEFINE_string('image_path', 'dataset//images', 'Directory containing images')
 flags.DEFINE_integer('n_epochs', 8, 'number of epochs')
 flags.DEFINE_float('training_ratio', 0.8, 'ratio of training samples')
