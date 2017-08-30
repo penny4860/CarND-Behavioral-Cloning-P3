@@ -18,13 +18,8 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[preprocess]: ./examples/preprocess.png "preprocess"
+[augment]: ./examples/augment.png "augment"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -66,8 +61,8 @@ Deep neural network의 경우 overfitting을 줄이기 위해 Dropout, Batchnorm등을 사용
 
 Network architecture를 설계하는 단계에서 overfitting을 줄이기 위해 다음과 같은 내용은 반영하였다. 
 
-* small filter와 activation layer를 반복하는 방식은 model의 complexity를 높게하면서도 parameter숫자를 줄여서 overfitting의 위험성을 줄인다.
-* convolution layer의 channel 숫자를 가급적 작게 설정하였다. 
+* small filter(3x3)와 activation layer를 반복하는 방식은 model의 complexity를 높게하면서도 parameter숫자를 줄여서 overfitting의 위험성을 줄인다.
+* convolution layer의 channel 숫자를 가급적 작게 설정하였다.
 
 ####3. Model parameter tuning
 
@@ -75,18 +70,17 @@ The model used an adam optimizer, so the learning rate was not tuned manually.
 
 ####4. Appropriate training data
 
-첫 번째 track에서 dataset을 수집하였다. 최대한 자동차가 길의 가운데 위치할 수 있도록 노력하면서 5번 수집하였다.
+나는 첫 번째 track에서 dataset을 수집하였다. 최대한 자동차가 길의 가운데 위치할 수 있도록 노력하면서 5번 수집하였다.
 
 ###Model Architecture and Training Strategy
 
 ####1. Solution Design Approach
 
-나는 먼저 Training data가 학습될 수 있을 정도로 complexity가 높은 구조를 설계하였다. 나는 VGGnet 에 영감을 받아 비슷한 구조의 network를 설계하였다.
+* 나는 먼저 Training data가 학습될 수 있을 정도로 complexity가 높은 구조를 설계하였다. 나는 VGGnet 에 영감을 받아 비슷한 구조의 network를 설계하였다. 이 단계에서는 validation dataset은 사용하지 않고 training dataset이 충분히 학습되는 (training error가 0.005미만) 구조를 찾았다.
 
-이 단계에서는 validation dataset은 사용하지 않고 training dataset이 충분히 학습되는 (training error가 0.005미만) 구조를 찾았다.
-
-나는 그 다음단계에서 validation dataset을 사용해서 overfitting 정도를 관찰하였다. 처음 디자인한 구조에서 overfitting을 줄이기 위해 parameter를 줄이는 방향으로 network 구조를 수정하였다.
-
+* 나는 그 다음단계에서 validation dataset을 사용해서 overfitting 정도를 관찰하였다. 
+	* 나는 overfitting을 줄이기 위해 training dataset에서만 data augmentation 기법을 사용하였다.
+	* validation dataset에서는 augmentation을 사용하지 않고 validation error만을 관찰하였다.
 
 ####2. Final Model Architecture
 
@@ -156,28 +150,58 @@ dense_3 (Dense)                  (None, 1)             129         activation_10
 
 ####3. Creation of the Training Set & Training Process
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
+##### 1) Training Set Collection
 
-![alt text][image2]
+* To capture good driving behavior, I recorded five laps on track one using center lane driving. 
+* Training sample 숫자를 늘리기 위해 center camera, left camera, right camera에서 획득한 image를 모두 사용하였다. 
 
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
+##### 2) Create Annotation File
 
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
+* 나는 ```create_ann_script.py```를 구현해서 annotation.json file을 만들었다.
+* json format의 annotation file에는 image filename과 target angle이 명시되어 있다.
 
-Then I repeated this process on track two in order to get more data points.
+```
+    {
+        "filename": "center_2017_08_21_20_15_44_772.jpg",
+        "target": 0.0
+    },
+    {
+        "filename": "center_2017_08_21_20_15_44_848.jpg",
+        "target": 0.05
+    },
+    {
+        "filename": "center_2017_08_21_20_15_44_925.jpg",
+        "target": 0.17258410000000002
+    },
+```
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+##### 3) Dataset Augmentation
 
-![alt text][image6]
-![alt text][image7]
+나는 다음과 같은 augmentation 기법을 사용하였다. 
 
-Etc ....
+* random shear
+* random flip
+* random gamma
 
-After the collection process, I had X number of data points. I then preprocessed this data by ...
+![alt text][preprocess] 
+
+모든 과정은 ```generator/image_augment.py``` 의 CarAugmentor class에 구현되어있다. 
 
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
+##### 4) Dataset Preprocessing
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+나는 Training 속도를 높이고 overfitting을 위험성을 줄이기 위해 다음과 같은 전처리 과정을 수행하였다.
+
+* crop
+  	* image에서 불필요한 부분을 잘라내었다.
+* resizing
+  	* image size를 (64x64)로 변환하였다.
+
+![alt text][preprocess] 
+
+나는 preprocessing 과정을 training set과 validation set에 동일하게 적용하였다. 또한 inference 과정에서도 동일하게 적용하기 위해서 augmentation 과는 별도의 class 로 구현하였다. 
+
+```generator/image_process.py``` 에 Preprocessor class로 모든 과정을 구현하였다.
+
+
+
