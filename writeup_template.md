@@ -50,19 +50,15 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-나는 VGG network에 영감을 받아 small size의 convolution layer와 relu, pooling이 반복되는 구조의 architecture를 설계하였다. 
-
+I was inspired by the VGG network and designed an architecture of a structure in which a small size convolution layer and relu and pooling are repeated.
 
 ####2. Attempts to reduce overfitting in the model
 
-Deep neural network의 경우 overfitting을 줄이기 위해 Dropout, Batchnorm등을 사용하는 것이 일반적이다.
+In case of Deep neural network, it is common to use Dropout, Batchnorm, etc. to reduce overfitting. However, I did not use this method.
+In order to reduce the overfitting in the network architecture design stage, the following contents are reflected.
 
-그러나, 나는 이러한 방식을 사용하지 않았다. 
-
-Network architecture를 설계하는 단계에서 overfitting을 줄이기 위해 다음과 같은 내용은 반영하였다. 
-
-* small filter(3x3)와 activation layer를 반복하는 방식은 model의 complexity를 높게하면서도 parameter숫자를 줄여서 overfitting의 위험성을 줄인다.
-* convolution layer의 channel 숫자를 가급적 작게 설정하였다.
+* Repeating the small filter (3x3) and activation layer reduces the risk of overfitting by increasing the complexity of the model while reducing the number of parameters.
+* The channel number of the convolution layer is set as small as possible.
 
 ####3. Model parameter tuning
 
@@ -70,25 +66,25 @@ The model used an adam optimizer, so the learning rate was not tuned manually.
 
 ####4. Appropriate training data
 
-나는 첫 번째 track에서 dataset을 수집하였다. 최대한 자동차가 길의 가운데 위치할 수 있도록 노력하면서 5번 수집하였다.
+I collected the dataset from the first track. We collected 5 times as much as possible while trying to position the car in the middle of the road.
 
 ###Model Architecture and Training Strategy
 
 ####1. Solution Design Approach
 
-* 나는 먼저 Training data가 학습될 수 있을 정도로 complexity가 높은 구조를 설계하였다. 나는 VGGnet 에 영감을 받아 비슷한 구조의 network를 설계하였다. 이 단계에서는 validation dataset은 사용하지 않고 training dataset이 충분히 학습되는 (training error가 0.005미만) 구조를 찾았다.
+* I designed a structure with high complexity so that training data can be learned first. I was inspired by VGGnet and designed a network of similar structure. At this stage, we found a structure where the training dataset was sufficiently learned (training error less than 0.005) without using the validation dataset.
 
-* 나는 그 다음단계에서 validation dataset을 사용해서 overfitting 정도를 관찰하였다. 
-	* 나는 overfitting을 줄이기 위해 training dataset에서만 data augmentation 기법을 사용하였다.
-	* validation dataset에서는 augmentation을 사용하지 않고 validation error만을 관찰하였다.
+* I then used the validation dataset to observe the degree of overfitting.
+	* I used data augmentation technique only in training dataset to reduce overfitting.
+	* Validation dataset does not use augmentation but only validation error.
 
 ####2. Final Model Architecture
 
-The final model architecture (model.py lines 34-70)는 vggnet 과 비슷하지만 convolution layer의 filter 숫자가 훨씬 작은 구조이다.
+The final model architecture (model_arch.py) is similar to vggnet, but the filter number of the convolution layer is much smaller.
 
-처음에는 First Layer의 숫자를 32로 크게 잡았으나, Training 속도를 빠르게 하고, overfitting의 위험성을 줄이기 위해 First Layer의 filter 숫자를 8로 줄였다.
+Initially, the number of First Layer was increased to 32, but the number of filters in First Layer was reduced to 8 to speed training and reduce the risk of overfitting.
 
-다음은 전체적인 architecture 이다.
+The following is the overall architecture.
 ```
 Layer (type)                     Output Shape          Param #     Connected to                     
 ====================================================================================================
@@ -153,18 +149,14 @@ dense_3 (Dense)                  (None, 1)             129         activation_10
 ##### 1) Training Set Collection
 
 * To capture good driving behavior, I recorded five laps on track one using center lane driving. 
-* Training sample 숫자를 늘리기 위해 center camera, left camera, right camera에서 획득한 image를 모두 사용하였다. 
+* I used all the images obtained from the center camera, left camera, and right camera to increase the number of training samples.
 
 ##### 2) Create Annotation File
 
-* 나는 ```create_ann_script.py```를 구현해서 annotation.json file을 만들었다.
-* json format의 annotation file에는 image filename과 target angle이 명시되어 있다.
+* I created an annotation.json file by implementing `` `create_ann_script.py```.
+* The json format annotation file specifies the image filename and target angle.
 
 ```
-    {
-        "filename": "center_2017_08_21_20_15_44_772.jpg",
-        "target": 0.0
-    },
     {
         "filename": "center_2017_08_21_20_15_44_848.jpg",
         "target": 0.05
@@ -173,11 +165,14 @@ dense_3 (Dense)                  (None, 1)             129         activation_10
         "filename": "center_2017_08_21_20_15_44_925.jpg",
         "target": 0.17258410000000002
     },
+    .....
 ```
+
+* I want to implement a reusable image augmentation and generator code descrived later. So, instead of using csv format log, I created a more general type of annotation file.
 
 ##### 3) Dataset Augmentation
 
-나는 다음과 같은 augmentation 기법을 사용하였다. 
+I used the following augmentation technique.
 
 * random shear
 * random flip
@@ -185,23 +180,23 @@ dense_3 (Dense)                  (None, 1)             129         activation_10
 
 ![alt text][preprocess] 
 
-모든 과정은 ```generator/image_augment.py``` 의 CarAugmentor class에 구현되어있다. 
+The whole process is implemented in the `` generator / image_augment.py`` CarAugmentor class.
 
 
 ##### 4) Dataset Preprocessing
 
-나는 Training 속도를 높이고 overfitting을 위험성을 줄이기 위해 다음과 같은 전처리 과정을 수행하였다.
+I performed the following pretreatment procedure to increase the training speed and reduce the risk of overfitting.
 
 * crop
-  	* image에서 불필요한 부분을 잘라내었다.
+  	* I cut out the unnecessary parts from the image.
 * resizing
-  	* image size를 (64x64)로 변환하였다.
+  	* I resized the image size to (64x64).
 
 ![alt text][preprocess] 
 
-나는 preprocessing 과정을 training set과 validation set에 동일하게 적용하였다. 또한 inference 과정에서도 동일하게 적용하기 위해서 augmentation 과는 별도의 class 로 구현하였다. 
+I applied the preprocessing procedure to training set and validation set equally. Also, in order to apply the same inference process, it is implemented as a separate class from augmentation.
 
-```generator/image_process.py``` 에 Preprocessor class로 모든 과정을 구현하였다.
+I have implemented the whole process in `` `generator / image_process.py`` as a Preprocessor class.
 
 
 
